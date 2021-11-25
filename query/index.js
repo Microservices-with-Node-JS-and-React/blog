@@ -26,23 +26,22 @@ app.get("/posts", (req, res) => {
 
 app.post("/events", (req, res) => {
   const { type, data } = req.body;
-  switch (type) {
-    case "PostCreated": {
-      const { id, title } = data;
-      posts[id] = { id, title, comments: [] };
-      break;
-    }
-    case "CommentCreated": {
-      const { id, postId, content } = data;
-      const newComment = { id, content };
-      posts[postId].comments.push(newComment);
-      break;
-    }
-    default: {
-      console.log("Unhnadled event", type);
-      break;
-    }
+  if (type === "PostCreated") {
+    const { id, title } = data;
+    posts[id] = { id, title, comments: [] };
+  } else if (type === "CommentCreated") {
+    const { id, postId, content, status } = data;
+    const newComment = { id, content, status };
+    posts[postId].comments.push(newComment);
+  } else if (type === "CommentUpdated") {
+    const { postId, id, status, content } = data;
+    const comment = posts[postId].comments.find((c) => c.id === id);
+    comment.status = status;
+    comment.content = content;
+  } else {
+    console.log("Unhnadled event", type);
   }
+
   console.log(posts);
   res.send({});
 });
