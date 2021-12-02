@@ -1,0 +1,62 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+deploy:
+  kubectl:
+    # does the follwing: 1. on start apply the files,
+    # 2. on change, apply the files,
+    # 3. on stop delete objects in the cluster
+    manifests:
+      - ./infra/k8s/*
+build:
+  local:
+    push: false # don't push on Docker Hub
+  # something that needs to be maintained
+  artifacts:
+    - image: nkolchakov/client # rebuild entire image if below sync files are not matched
+      context: client # watch for changes in this dir
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.js" # when js file is changed, copy it to the Pod
+            dest: .
+    - image: nkolchakov/comments
+      context: comments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "*.js"
+            dest: .
+    - image: nkolchakov/event-bus
+      context: event-bus
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "*.js"
+            dest: .
+    - image: nkolchakov/moderation
+      context: moderation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "*.js"
+            dest: .
+    - image: nkolchakov/posts
+      context: posts
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "*.js"
+            dest: .
+    - image: nkolchakov/query
+      context: query
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "*.js"
+            dest: .
